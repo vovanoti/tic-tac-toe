@@ -17,7 +17,9 @@ int areyouwin(int arr[]);
 void mainmenu();
 void helpmenu();
 void twoplayergame();
+void singleplayergame();
 void resetfield(int arr[], int count);
+int modeselectf(int a);
 
 int main(){
 	mainmenu();
@@ -26,24 +28,40 @@ int main(){
 		printf("================================================================\n");
 		printf("Please choose the number and press Enter to select a game mode\n(1 - single player, 2 - two players, 3 - help, 0 - exit):");
 		scanf("%10i",&modeselect);
-		switch(modeselect){
-			case 1:
-			system(clear);
-			printf("Single mode is under development...\n");
+		int exitmode = modeselectf(modeselect);
+		//printf("DEBUG: EXITMODE IS %i\n",exitmode);
+		if (exitmode == 1)
 			break;
-			case 2:
-			resetfield(field, NFIELD);
-			twoplayergame();
-			break;
-			case 3:
-			helpmenu();
-			break;
-			case 0:
-			printf("Bye bye!\n");
-			return 0;
-		}
 	}
 	return 0;
+}
+
+void singleplayergame(){
+	int p1 = 10;
+	int cpu = 10;
+		while (areyouwin(field) == 0){
+			table(field);
+			while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
+				printf("Player 1 (X): Please enter the number 1-9\n");
+				scanf("%10i", &p1);
+			}
+			field[p1-1] = 1;
+			p1 = 10;
+			if (areyouwin(field) == 1 || areyouwin(field) == 3)
+				break;
+			table(field);
+			while (cpu > 9 || cpu < 1 || field[cpu-1] != 0){ 
+				printf("Player 2 (O): Please enter the number 1-9\n");
+				//here should be the cpu
+				cpu = 1;
+				//scanf("%10i", &p2);
+			}
+			field[cpu-1] = 2;
+			cpu = 10;
+			if (areyouwin(field) == 2 || areyouwin(field) == 3)
+				break;
+	}
+	table(field);
 }
 
 void twoplayergame(){
@@ -79,6 +97,28 @@ void twoplayergame(){
 		break;
 	case 3:
 		printf("======Oops, it's a tie! Looks like we have no winner today======\n");
+		break;
+	}
+}
+
+int modeselectf(int a){
+	switch(a){
+		case 1:
+		system(clear);
+		printf("Single mode is under development...\n");
+		resetfield(field, NFIELD);
+		singleplayergame();
+		break;
+		case 2:
+		resetfield(field, NFIELD);
+		twoplayergame();
+		break;
+		case 3:
+		helpmenu();
+		break;
+		case 0:
+		printf("Bye bye!\n");
+		return 1;
 		break;
 	}
 }
