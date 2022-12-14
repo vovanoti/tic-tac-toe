@@ -17,33 +17,73 @@ int areyouwin(int arr[]);
 void mainmenu();
 void helpmenu();
 void twoplayergame();
+void singleplayergame();
 void resetfield(int arr[], int count);
+int modeselectf(int a);
+int userinputf();
 
 int main(){
 	mainmenu();
-	int modeselect = 10;
 	while(1){
 		printf("================================================================\n");
 		printf("Please choose the number and press Enter to select a game mode\n(1 - single player, 2 - two players, 3 - help, 0 - exit):");
-		scanf("%10i",&modeselect);
-		switch(modeselect){
-			case 1:
-			system(clear);
-			printf("Single mode is under development...\n");
+		int exitmode = modeselectf(userinputf());
+		if (exitmode == 1)
 			break;
-			case 2:
-			resetfield(field, NFIELD);
-			twoplayergame();
-			break;
-			case 3:
-			helpmenu();
-			break;
-			case 0:
-			printf("Bye bye!\n");
-			return 0;
-		}
 	}
 	return 0;
+}
+
+int modeselectf(int a){
+	switch(a){
+		case 1:
+		system(clear);
+		printf("Single mode is under development...\n");
+		resetfield(field, NFIELD);
+		//singleplayergame();
+		break;
+		case 2:
+		resetfield(field, NFIELD);
+		twoplayergame();
+		break;
+		case 3:
+		helpmenu();
+		break;
+		case 0:
+		printf("Bye bye!\n");
+		return 1;
+		break;
+	}
+}
+
+void singleplayergame(){
+	int p1 = 10;
+	int cpu = 10;
+		while (areyouwin(field) == 0){
+			table(field);
+			while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
+				printf("Player 1 (X): Please enter the number 1-9\n");
+				p1 = userinputf();
+			}
+			field[p1-1] = 1;
+			p1 = 10;
+			if (areyouwin(field) == 1 || areyouwin(field) == 3)
+				break;
+			table(field);
+			while (cpu > 9 || cpu < 1 || field[cpu-1] != 0){ 
+				printf("Player 2 (O): Please enter the number 1-9\n");
+				//here should be the cpu
+				if (field[4] == 1)
+					cpu = 1;
+				else
+					cpu = 5;
+			}
+			field[cpu-1] = 2;
+			cpu = 10;
+			if (areyouwin(field) == 2 || areyouwin(field) == 3)
+				break;
+	}
+	table(field);
 }
 
 void twoplayergame(){
@@ -53,7 +93,7 @@ void twoplayergame(){
 		table(field);
 		while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
 			printf("Player 1 (X): Please enter the number 1-9\n");
-			scanf("%10i", &p1);
+			p1 = userinputf();
 		}
 		field[p1-1] = 1;
 		p1 = 10;
@@ -62,7 +102,7 @@ void twoplayergame(){
 		table(field);
 		while (p2 > 9 || p2 < 1 || field[p2-1] != 0){ 
 			printf("Player 2 (O): Please enter the number 1-9\n");
-			scanf("%10i", &p2);
+			p2 = userinputf();
 		}
 		field[p2-1] = 2;
 		p2 = 10;
@@ -160,6 +200,17 @@ void table(int arr[]){
     printf("\t\t\t# %c # # %c # # %c #\n",point[0],point[1],point[2]);
     printf("\t\t\t##### ##### #####\n");
 	printf("================================================================\n");
+}
+
+int userinputf(){
+	char userinput[40];
+	scanf("%39s",userinput);
+	char ch = userinput[0];
+	for(int i=48; i<58; i++){
+		if (ch == i)
+			return ch -'0';
+	}
+	return 10;
 }
 
 //debugging function
