@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h> //library for system commands
 //check OS to clear the screen
 #if defined(unix) || defined(__unix__) || defined(__unix)
@@ -11,7 +12,7 @@
 #define NFIELD 9
 int field[NFIELD] = {0};
 
-void table();
+void printtable();
 void print_int_arr(int arr[], int count);
 int areyouwin(int arr[]);
 void mainmenu();
@@ -21,6 +22,8 @@ void singleplayergame();
 void resetfield(int arr[], int count);
 int modeselectf(int a);
 int userinputf();
+int minimax(int table[], int depth, int bot);
+void copy_array(int a[], int b[]);
 
 int main(){
 	mainmenu();
@@ -40,7 +43,7 @@ int modeselectf(int a){
 		system(clear);
 		printf("Single mode is under development...\n");
 		resetfield(field, NFIELD);
-		//singleplayergame();
+		singleplayergame();
 		break;
 		case 2:
 		resetfield(field, NFIELD);
@@ -56,11 +59,30 @@ int modeselectf(int a){
 	}
 }
 
+void copy_array(int a[], int b[]){
+	for (int i=0; i<9; i++){
+		b[i] = a[i];
+	}
+}
+
+int minimax(int table[], int depth, int bot){
+	if (depth == 8){
+		copy_array(field, table);
+		printf("THIS IS MINIMAX FUNC\n");
+	}
+	else if (depth == 0 || areyouwin(bot) == 2){
+		return bot;
+	}
+
+	return 0;
+}
+
 void singleplayergame(){
 	int p1 = 10;
 	int cpu = 10;
 		while (areyouwin(field) == 0){
-			table(field);
+			printtable(field);
+			//minimax(field, 8, cpu);
 			while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
 				printf("Player 1 (X): Please enter the number 1-9\n");
 				p1 = userinputf();
@@ -69,28 +91,30 @@ void singleplayergame(){
 			p1 = 10;
 			if (areyouwin(field) == 1 || areyouwin(field) == 3)
 				break;
-			table(field);
+			printtable(field);
 			while (cpu > 9 || cpu < 1 || field[cpu-1] != 0){ 
 				printf("Player 2 (O): Please enter the number 1-9\n");
 				//here should be the cpu
-				if (field[4] == 1)
+				cpu = minimax(field, 8, cpu);
+
+				/*if (field[4] == 1)
 					cpu = 1;
 				else
-					cpu = 5;
+					cpu = 5;*/
 			}
 			field[cpu-1] = 2;
 			cpu = 10;
 			if (areyouwin(field) == 2 || areyouwin(field) == 3)
 				break;
 	}
-	table(field);
+	printtable(field);
 }
 
 void twoplayergame(){
 	int p1 = 10;
 	int p2 = 10;
 	while (areyouwin(field) == 0){
-		table(field);
+		printtable(field);
 		while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
 			printf("Player 1 (X): Please enter the number 1-9\n");
 			p1 = userinputf();
@@ -99,7 +123,7 @@ void twoplayergame(){
 		p1 = 10;
 		if (areyouwin(field) == 1 || areyouwin(field) == 3)
 			break;
-		table(field);
+		printtable(field);
 		while (p2 > 9 || p2 < 1 || field[p2-1] != 0){ 
 			printf("Player 2 (O): Please enter the number 1-9\n");
 			p2 = userinputf();
@@ -109,7 +133,7 @@ void twoplayergame(){
 		if (areyouwin(field) == 2 || areyouwin(field) == 3)
 			break;
 	}
-	table(field);
+	printtable(field);
 	switch(areyouwin(field)){
 	case 1:
 		printf("=========Congrats, Player 1 (X), you are the winner!!!==========\n");
@@ -178,7 +202,7 @@ int areyouwin(int arr[]){
 		return 0;
 }
 
-void table(int arr[]){
+void printtable(int arr[]){
 	char point[NFIELD];
 	for (int i=0;i<NFIELD;i++){
 		if (arr[i] == 0)
@@ -213,15 +237,15 @@ int userinputf(){
 	return 10;
 }
 
+void resetfield(int arr[], int count){
+	for (int i=0;i<count;i++){
+		arr[i] = 0;
+	}
+}
+
 //debugging function
 void print_int_arr(int arr[], int count){
 	for (int i=0;i<count;i++){
 		printf ("count %i, result %i\n", i, arr[i]);
-	}
-}
-
-void resetfield(int arr[], int count){
-	for (int i=0;i<count;i++){
-		arr[i] = 0;
 	}
 }
