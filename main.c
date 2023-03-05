@@ -69,11 +69,11 @@ int minimax(int table[], int depth, int bot){
 	if (depth == 8){
 		copy_array(field, table);
 		printf("THIS IS MINIMAX FUNC\n");
+		return rand() % 9 + 1;
 	}
 	else if (depth == 0 || areyouwin(bot) == 2){
 		return bot;
 	}
-
 	return 0;
 }
 
@@ -96,7 +96,7 @@ void singleplayergame(){
 				printf("Player 2 (O): Please enter the number 1-9\n");
 				//here should be the cpu
 				cpu = minimax(field, 8, cpu);
-
+				printf("The CPU turn is %i\n",cpu);
 				/*if (field[4] == 1)
 					cpu = 1;
 				else
