@@ -1,5 +1,5 @@
 all: clean
-	gcc main.c -o tic-tac-toe
+	gcc main.c -Wall -o tic-tac-toe
 
 clean:
 	rm -rf tic-tac-toe
