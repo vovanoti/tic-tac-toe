@@ -240,6 +240,7 @@ void helpmenu(){
     printf("\t\t\t# 1 # # 2 # # 3 #\n");
     printf("\t\t\t##### ##### #####\n");
 	printf("================================================================\n");
+	printf("===This game was made by vovanoti https://github.com/vovanoti===\n");
 }
 
 int areyouwin(int arr[]){
