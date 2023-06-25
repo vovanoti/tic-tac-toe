@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h> //library for system commands
 //check OS to clear the screen
 #if defined(unix) || defined(__unix__) || defined(__unix)
@@ -11,75 +12,212 @@
 #define NFIELD 9
 int field[NFIELD] = {0};
 
-void table();
+//int depth = 8;
+int value = 0;
+void printtable();
 void print_int_arr(int arr[], int count);
 int areyouwin(int arr[]);
 void mainmenu();
 void helpmenu();
 void twoplayergame();
+void singleplayergame();
 void resetfield(int arr[], int count);
+int modeselectf(int a);
+int userinputf();
+int minimax(int table[], int depth, int bot);
+void copy_array(int a[], int b[]);
+int evaluate(int board[NFIELD]);
+int computerMove();
+void printresult();
 
 int main(){
 	mainmenu();
-	int modeselect = 10;
 	while(1){
 		printf("================================================================\n");
 		printf("Please choose the number and press Enter to select a game mode\n(1 - single player, 2 - two players, 3 - help, 0 - exit):");
-		scanf("%10i",&modeselect);
-		switch(modeselect){
-			case 1:
+		int exitmode = modeselectf(userinputf());
+		if (exitmode == 1)
+			break;
+	}
+	return 0;
+}
+
+int modeselectf(int a){
+	switch(a){
+		case 1:
 			system(clear);
 			printf("Single mode is under development...\n");
+			resetfield(field, NFIELD);
+			singleplayergame();
 			break;
-			case 2:
+		case 2:
 			resetfield(field, NFIELD);
 			twoplayergame();
 			break;
-			case 3:
+		case 3:
 			helpmenu();
 			break;
-			case 0:
+		case 0:
 			printf("Bye bye!\n");
-			return 0;
+			return 1;
+			break;
+	}
+}
+
+void copy_array(int a[], int b[]){
+	for (int i=0; i<9; i++){
+		b[i] = a[i];
+	}
+}
+
+int evaluate(int board[]){
+	if (areyouwin(board) == 2)
+		return 10;
+	else if (areyouwin(board) == 1)
+		return -10;
+	else
+		return 0;
+}
+
+int computerMove(){
+	int board[NFIELD] = {0};
+	copy_array(field, board);
+	printtable(board);
+	//printf("DEBUG: THE ADDR OF FIELD IS %p\nDEBUG: THE ADDR OF BOARD IS %p\n",field,board);
+	//printf("DEBUG: THIS IS MINIMAX FUNC (depth is %i)\n", depth);
+	int bestScore = -1000;
+	int index;
+	for (int i = 0; i <NFIELD; i++){
+		if (board[i] == 0){
+			board[i] = 2;
+			int score = minimax(board, 0, 0);
+			//printf("DEBUG: MINIMAX COMPUTERMOVE Score is %i\n",score);
+			board[i] = 0;
+			if (score > bestScore){
+				//printf("DEBUG: MINIMAX COMPUTERMOVE bestScore is %i\n",bestScore);
+				bestScore = score;
+				//printf("DEBUG: MINIMAX COMPUTERMOVE bestScore is %i\n",bestScore);
+				index = i;
+			}
 		}
 	}
-	return 0;
+	return index+1;
+}
+
+int minimax(int table[], int depth, int maximizingPlayer){
+	int score = evaluate(table);
+	//printf("EVALUATE FUNCTION IS %i\n\n",evaluate(table));
+	if (score == 10)
+		return score;
+	if (score == -10)
+		return score;
+	if (areyouwin(table) == 3)
+		return 0;
+
+	//printf("DEBUG: maximizingPlayer is %i\n", maximizingPlayer);
+	//printtable(table);
+	
+	if (maximizingPlayer){
+		int bestScore = -1000;
+		for (int i = 0; i < NFIELD; i++){
+			if (table[i] == 0){
+				table[i] = 2;
+				int score = minimax(table, depth+1, !maximizingPlayer);
+				table[i] = 0;
+				if (score > bestScore)
+					bestScore = score;
+			}
+		}
+		//printf("DEBUG: THE DEPTH is %i\n",depth);
+		//printf("DEBUG: MINIMAX CPU bestScore is %i\n",bestScore);
+		return bestScore;
+	}
+
+	//if (!maximizingPlayer){
+	else {
+		int bestScore = 1000;
+		for (int i = 0; i < NFIELD; i++){
+			if (table[i] == 0){
+				table[i] = 1;
+				int score = minimax(table, depth+1, !maximizingPlayer);
+				table[i] = 0;
+				if (score < bestScore)
+					bestScore = score;
+			}
+		}
+		//printf("DEBUG: THE DEPTH is %i\n",depth);
+		//printf("DEBUG: MINIMAX MINIM PLAYER bestScore is %i\n",bestScore);
+		return bestScore;
+	}
+}
+
+void singleplayergame(){
+	int p1 = 10;
+	int cpu = 10;
+		while (areyouwin(field) == 0){
+			printtable(field);
+			while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
+				printf("Player 1 (X): Please enter the number 1-9\n");
+				p1 = userinputf();
+			}
+			field[p1-1] = 1;
+			p1 = 10;
+			if (areyouwin(field) == 1 || areyouwin(field) == 3)
+				break;
+			printtable(field);
+			while (cpu > 9 || cpu < 1 || field[cpu-1] != 0){ 
+				printf("Player 2 (O): Please enter the number 1-9\n");
+				//here should be the cpu
+				cpu = computerMove();
+				printf("The CPU turn is %i\n",cpu);
+			}
+			field[cpu-1] = 2;
+			cpu = 10;
+			if (areyouwin(field) == 2 || areyouwin(field) == 3)
+				break;
+	}
+	printtable(field);
+	printresult();
 }
 
 void twoplayergame(){
 	int p1 = 10;
 	int p2 = 10;
 	while (areyouwin(field) == 0){
-		table(field);
+		printtable(field);
 		while (p1 > 9 || p1 < 1 || field[p1-1] != 0){
 			printf("Player 1 (X): Please enter the number 1-9\n");
-			scanf("%10i", &p1);
+			p1 = userinputf();
 		}
 		field[p1-1] = 1;
 		p1 = 10;
 		if (areyouwin(field) == 1 || areyouwin(field) == 3)
 			break;
-		table(field);
+		printtable(field);
 		while (p2 > 9 || p2 < 1 || field[p2-1] != 0){ 
 			printf("Player 2 (O): Please enter the number 1-9\n");
-			scanf("%10i", &p2);
+			p2 = userinputf();
 		}
 		field[p2-1] = 2;
 		p2 = 10;
 		if (areyouwin(field) == 2 || areyouwin(field) == 3)
 			break;
 	}
-	table(field);
+	printtable(field);
+	printresult();
+}
+
+void printresult(){
 	switch(areyouwin(field)){
-	case 1:
-		printf("=========Congrats, Player 1 (X), you are the winner!!!==========\n");
-		break;
-	case 2:
-		printf("=========Congrats, Player 2 (O), you are the winner!!!==========\n");
-		break;
-	case 3:
-		printf("======Oops, it's a tie! Looks like we have no winner today======\n");
-		break;
+		case 1:
+			printf("=========Congrats, Player 1 (X), you are the winner!!!==========\n");
+			break;
+		case 2:
+			printf("=========Congrats, Player 2 (O), you are the winner!!!==========\n");
+			break;
+		case 3:
+			printf("======Oops, it's a tie! Looks like we have no winner today======\n");
+			break;
 	}
 }
 
@@ -102,6 +240,7 @@ void helpmenu(){
     printf("\t\t\t# 1 # # 2 # # 3 #\n");
     printf("\t\t\t##### ##### #####\n");
 	printf("================================================================\n");
+	printf("===This game was made by vovanoti https://github.com/vovanoti===\n");
 }
 
 int areyouwin(int arr[]){
@@ -138,7 +277,7 @@ int areyouwin(int arr[]){
 		return 0;
 }
 
-void table(int arr[]){
+void printtable(int arr[]){
 	char point[NFIELD];
 	for (int i=0;i<NFIELD;i++){
 		if (arr[i] == 0)
@@ -148,9 +287,10 @@ void table(int arr[]){
 		else if (arr[i] == 2)
 			point[i] = 'O';
 	}
+
 	system(clear);
 	printf("================================================================\n");
-	printf("=======================Two Players Mode=========================\n");
+	printf("==========================Tic Tac Toe===========================\n");
 	printf("================================================================\n");
 	printf("\t\t\t##### ##### #####\n");
     printf("\t\t\t# %c # # %c # # %c #\n",point[6],point[7],point[8]);
@@ -162,15 +302,26 @@ void table(int arr[]){
 	printf("================================================================\n");
 }
 
-//debugging function
-void print_int_arr(int arr[], int count){
-	for (int i=0;i<count;i++){
-		printf ("count %i, result %i\n", i, arr[i]);
+int userinputf(){
+	char userinput[40];
+	scanf("%39s",userinput);
+	char ch = userinput[0];
+	for(int i=48; i<58; i++){
+		if (ch == i)
+			return ch -'0';
 	}
+	return 10;
 }
 
 void resetfield(int arr[], int count){
 	for (int i=0;i<count;i++){
 		arr[i] = 0;
+	}
+}
+
+//debugging function
+void print_int_arr(int arr[], int count){
+	for (int i=0;i<count;i++){
+		printf ("count %i, result %i\n", i, arr[i]);
 	}
 }
